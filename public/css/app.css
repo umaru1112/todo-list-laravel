@@ -73,7 +73,6 @@ button {
     cursor: pointer;
     font-size: 0.95rem;
     margin-right: 8px;
-    transition: all 0.2s ease;
 }
 
 button:hover {
@@ -95,6 +94,36 @@ button:disabled {
 
 .hidden {
     display: none !important;
+}
+
+/* ===== タブ（進行中／完了） ===== */
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #eee;
+}
+
+.tab-btn {
+    background: none;
+    color: #888;
+    border: none;
+    border-radius: 4px 4px 0 0;
+    padding: 8px 18px;
+    margin: 0 0 -2px 0;
+    font-weight: bold;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-btn:hover {
+    background: none;
+    color: #3498db;
+}
+
+.tab-btn.active {
+    color: #3498db;
+    border-bottom-color: #3498db;
 }
 
 /* ===== 一括操作ツールバー ===== */
@@ -141,11 +170,22 @@ button:disabled {
     list-style: none;
     padding: 0;
     margin: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.18s ease;
 }
 
 .todo-list.is-transitioning {
     opacity: 0;
+}
+
+@keyframes todo-item-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .todo-item {
@@ -154,6 +194,27 @@ button:disabled {
     gap: 12px;
     padding: 12px 0;
     border-bottom: 1px solid #eee;
+    animation: todo-item-in 0.22s ease both;
+}
+
+.todo-item.removing {
+    animation: none;
+    transition: opacity 0.18s ease, transform 0.18s ease, max-height 0.22s ease, padding 0.22s ease;
+    opacity: 0;
+    transform: translateX(8px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .todo-list,
+    .todo-item,
+    .toast {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
 .todo-item input[type="checkbox"] {
@@ -164,7 +225,7 @@ button:disabled {
 }
 
 .todo-item.completed .todo-title {
-    text-decoration: line-through;
+    /* text-decoration: line-through; */
     color: #999;
 }
 

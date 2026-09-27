@@ -22,15 +22,17 @@ class TodoController extends Controller
 
     /**
      * ToDo一覧をページネーション付きで取得する。
-     * GET /api/todos?page=1
+     * GET /api/todos?page=1&status=pending|completed
      */
     public function list(Request $request): JsonResponse
     {
         $perPage = 20;
+        $status = $request->query('status', 'pending');
 
         $todos = Todo::query()
-            ->orderBy('is_completed') // 未完了を先に表示
-            ->orderByDesc('created_at') // 同じ状態内では新しい順
+            ->when($status === 'completed', fn ($q) => $q->where('is_completed', true))
+            ->when($status === 'pending', fn ($q) => $q->where('is_completed', false))
+            ->orderByDesc('created_at')
             ->paginate($perPage);
 
         return response()->json([
@@ -113,7 +115,7 @@ class TodoController extends Controller
     }
 
     /**
-     * 選択した複数のToDoを一括で完了状態にする。
+     * 選択した複数のToDoの完了状態を一括で変更する（デフォルトは完了にする）。
      * POST /api/todos/bulk-complete
      */
     public function bulkComplete(Request $request): JsonResponse
@@ -121,10 +123,15 @@ class TodoController extends Controller
         $validated = $request->validate([
             'ids' => ['required', 'array', 'min:1'],
             'ids.*' => ['integer', 'exists:todos,id'],
+            'is_completed' => ['sometimes', 'boolean'],
         ]);
 
-        Todo::whereIn('id', $validated['ids'])->update(['is_completed' => true]);
+        $isCompleted = $validated['is_completed'] ?? true;
 
-        return response()->json(['message' => '選択したToDoを完了にしました']);
+        Todo::whereIn('id', $validated['ids'])->update(['is_completed' => $isCompleted]);
+
+        return response()->json([
+            'message' => $isCompleted ? '選択したToDoを完了にしました' : '選択したToDoを進行中に戻しました',
+        ]);
     }
 }

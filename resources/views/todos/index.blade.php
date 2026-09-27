@@ -28,6 +28,11 @@
 
         <div id="loading" class="loading hidden">読み込み中...</div>
 
+        <div class="tabs" role="tablist">
+            <button type="button" class="tab-btn active" data-status="pending" role="tab" aria-selected="true">進行中</button>
+            <button type="button" class="tab-btn" data-status="completed" role="tab" aria-selected="false">完了</button>
+        </div>
+
         <div class="toolbar">
             <label class="select-all-label">
                 <input type="checkbox" id="select-all">
